@@ -42,7 +42,7 @@ func init() {
 	flag.StringVar(&username, "u", "", "basic auth user name")
 	flag.StringVar(&password, "p", "", "basic auth password")
 
-	logger = log.New(os.Stderr, color.CyanString("server: "), log.Lmicroseconds)
+	logger = log.New(os.Stderr, color.YellowString("server: "), log.Lmicroseconds)
 }
 
 // broadcastToSubscribers - send a message to all subscribers
@@ -105,7 +105,6 @@ func joinPublisher(writer http.ResponseWriter, req *http.Request) {
 			publisher = nil
 			break
 		}
-		logger.Println(string(msg))
 
 		broadcastToSubscribers(msg)
 	}

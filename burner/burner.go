@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
+	"os/signal"
 
 	mq "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/felixge/pidctrl"
 	"strconv"
+	"syscall"
 	"time"
 )
 
 var client mq.Client
 var logger *log.Logger
-var wg sync.WaitGroup
 var pid *pidctrl.PIDController
 var proportional float64
 var integral float64
@@ -59,25 +59,30 @@ func Setup() error {
 	return nil
 }
 
+// SendDemand - send demand back to the broker
 func SendDemand(demand float64) {
 	token := client.Publish("burner/demand", 0, false, fmt.Sprintf("%1.2f", demand))
 	token.Wait()
 }
 
+// Teardown - close mqtt client
 func Teardown() {
 	client.Disconnect(250)
 }
 
+// handleSetpoint -
 func handleSetpoint(c mq.Client, msg mq.Message) {
+	logger.Println("setpoint: ", string(msg.Payload()))
 	setpt, err := strconv.ParseFloat(string(msg.Payload()), 64)
 	if err == nil {
 		setpoint = setpt
+		pid.Set(setpoint)
 	}
 }
 
 // handleTemperature - handle updates to ambient temperature
 func handleTemperature(c mq.Client, msg mq.Message) {
-	logger.Println(string(msg.Payload()))
+	logger.Println("temp: ", string(msg.Payload()))
 	amb, err := strconv.ParseFloat(string(msg.Payload()), 64)
 	if err == nil {
 		ambient = amb
@@ -100,6 +105,21 @@ func main() {
 			SendDemand(delta)
 		}
 	}()
-	wg.Add(1)
-	wg.Wait()
+
+	// create signal handlers for graceful shutdown
+	// ---------------------------------------------------
+	sigChan := make(chan os.Signal, 2)
+	signal.Notify(sigChan)
+
+	for {
+		s := <-sigChan
+		switch s {
+		case syscall.SIGINT:
+			fallthrough
+		case syscall.SIGTERM:
+			logger.Println("Closing gracefully...")
+			Teardown()
+			os.Exit(0)
+		}
+	}
 }
