@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>COMFORT-MATIC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div class="container">
+    <nav class="nav">
+        <div class="nav-left">
+            <a class="nav-item">
+                Comfort-Matic
+            </a>
+        </div>
+    </nav>
+    <div class="columns">
+        <div class="column is-half">
+            <div class="notification is-warning">
+                <span class="icon">
+                    <i class="fa fa-fire"></i>
+                </span>
+                <span>Demand</span>
+                <span class="title is-pulled-right" id="txt_demand">0</span>
+            </div>
+            <div class="notification is-primary">
+                <div class="columns">
+                    <div class="column is-half has-text-centered">
+                        <input id="temp_knob" value="0" /><br />
+                        Outside Temp
+                    </div>
+                    <div class="column is-half has-text-centered">
+                        <input id="setp_knob" value="0" /><br />
+                        Setpoint
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://rawgit.com/aterrien/jQuery-Knob/master/dist/jquery.knob.min.js"></script>
+<script type="text/javascript">
+    $(window).load(function() {
+        var elem = null;
+        var ws = new WebSocket('ws://localhost:8888/subscriber/join');
+        ws.onopen = function(ws_evt) {
+            console.log('opening websocket');
+        };
+        ws.onclose = function(ws_evt) {
+            console.log('closing websocket');
+        };
+        ws.onerror = function(ws_evt) {
+            console.log('ERROR: ' + ws_evt.data);
+        };
+        ws.onmessage = function(ws_evt) {
+            var data = JSON.parse(ws_evt.data);
+            $('#txt_demand').text(data.demand.toPrecision(2));
+        };
+
+        $('#temp_knob').knob({
+            width: 150,
+            cursor: 10,
+            thickness: 0.25,
+            fgColor: '#ffffff',
+            bgColor: '#333333',
+            displayPrevious: true,
+            min: -30,
+            max: 130,
+            release: function (value) {
+                var v = JSON.stringify({
+                    type: "temp",
+                    payload: value
+                });
+                console.log(v);
+                ws.send(v);
+            }
+        });
+        $('#setp_knob').knob({
+            width: 150,
+            cursor: 10,
+            thickness: 0.25,
+            fgColor: '#ffffff',
+            bgColor: '#333333',
+            displayPrevious: true,
+            min: 60,
+            max: 80,
+            release: function (value) {
+                var v = JSON.stringify({
+                    type: "setpoint",
+                    payload: value
+                });
+                console.log(v);
+                ws.send(v);
+            }
+        });
+
+        $('#temp_knob').val("72");
+        $('#setp_knob').val("72");
+    });
+</script>
+</body>
+</html>

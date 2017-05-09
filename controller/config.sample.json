@@ -1,0 +1,14 @@
+{
+  "mqtt": {
+    "address": "127.0.0.1",
+    "port": "1883",
+    "transport": "tcp",
+    "client_id": "mqtt.controller",
+    "topics": {
+      "temperature": "setpoint/temp"
+    }
+  },
+  "websocket": {
+    "address": "ws://localhost:8888/publisher/join"
+  }
+}
