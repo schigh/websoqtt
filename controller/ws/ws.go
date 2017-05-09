@@ -2,17 +2,17 @@ package ws
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"../cfg"
-	"encoding/json"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 	"github.com/schigh/str"
-	"strconv"
 )
 
 type ThermostatMessage struct {

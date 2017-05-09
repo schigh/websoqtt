@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"./cfg"
 	"./mqtt"
 	"./ws"
-	"syscall"
 )
 
 var configPath string

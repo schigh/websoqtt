@@ -5,7 +5,10 @@
     "transport": "tcp",
     "client_id": "mqtt.controller",
     "topics": {
-      "temperature": "setpoint/temp"
+      "temperature": "thermostat/temp",
+      "setpoint": "thermostat/setpoint",
+      "demand": "burner/demand",
+      "burner_temp": "burner/temp"
     }
   },
   "websocket": {

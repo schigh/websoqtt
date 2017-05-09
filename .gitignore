@@ -120,3 +120,4 @@ crashlytics-build.properties
 fabric.properties
 
 /controller/config.json
+.idea/

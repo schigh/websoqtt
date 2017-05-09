@@ -5,13 +5,13 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
+	"syscall"
+	"time"
 
 	mq "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/felixge/pidctrl"
-	"strconv"
-	"syscall"
-	"time"
 )
 
 var client mq.Client
@@ -108,7 +108,7 @@ func main() {
 
 	// create signal handlers for graceful shutdown
 	// ---------------------------------------------------
-	sigChan := make(chan os.Signal, 2)
+	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan)
 
 	for {
